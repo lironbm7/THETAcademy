@@ -26,7 +26,7 @@ function RiskFree() {
 
   return (
     <div>
-      <label htmlFor="riskFreeRate">Risk Free Rate:</label>
+      <label htmlFor="riskFreeRate">Interest Rate:</label>
       <input
         type="number"
         id="riskFreeRate"
