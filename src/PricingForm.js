@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Typography,
@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 
 const OptionPricingForm = () => {
+  const [riskFreeRate, setRiskFreeRate] = useState('');
   const [underlyingPrice, setUnderlyingPrice] = useState('');
   const [strikePrice, setStrikePrice] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
@@ -59,7 +60,23 @@ const OptionPricingForm = () => {
     return `${today.getFullYear()}-${month}-${day}`;
   };
 
-  
+  useEffect(() => {
+    const url = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=${process.env.ALPHA_APIKEY}`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const rate = data.data[0].value;
+        setRiskFreeRate(rate);
+      })
+      .catch(error => {
+        setRiskFreeRate('');
+      });
+  }, []);
+
+  const handleRiskFreeRateChange = (event) => {
+    setRiskFreeRate(event.target.value);
+  }  
 
   return (
   <form onSubmit={handleSubmit}>
@@ -91,12 +108,13 @@ const OptionPricingForm = () => {
         variant="outlined"
         margin="normal"
         required
+        InputLabelProps={{ shrink: true }}
       />
       <Typography variant="body2" color="textSecondary" style={{ marginBottom: '16px' }}>
         {timeToExpiration}
       </Typography>
       <TextField
-        label="Dividend Yield (in decimal form)"
+        label="Dividend Yield (decimal)"
         type="number"
         step="0.01"
         value={dividendYield}
@@ -110,6 +128,16 @@ const OptionPricingForm = () => {
         type="number"
         value={optionPrice}
         onChange={handleOptionPriceChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <TextField
+        label="Interest %"
+        type="number"
+        id="riskFreeRate"
+        value={riskFreeRate}
+        onChange={handleRiskFreeRateChange}
         variant="outlined"
         margin="normal"
         required
