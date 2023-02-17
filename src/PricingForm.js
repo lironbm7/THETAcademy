@@ -1,4 +1,13 @@
 import React, { useState } from 'react';
+import {
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Button,
+} from '@mui/material';
 
 const OptionPricingForm = () => {
   const [underlyingPrice, setUnderlyingPrice] = useState('');
@@ -50,44 +59,79 @@ const OptionPricingForm = () => {
     return `${today.getFullYear()}-${month}-${day}`;
   };
 
+  
+
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Underlying Price:
-        <input type="number" value={underlyingPrice} onChange={handleUnderlyingPriceChange} />
-      </label>
-      <br />
-      <label>
-        Strike Price:
-        <input type="number" value={strikePrice} onChange={handleStrikePriceChange} />
-      </label>
-      <br />
-      <label>
-        Expiration Date:
-        <input type="date" value={expirationDate} min={getCurrentDate()} onChange={handleExpirationDateChange} />
-      </label>
-      {timeToExpiration}
-      <br />
-      <label>
-        Dividend Yield (in decimal form):
-        <input type="number" step="0.01" value={dividendYield} onChange={handleDividendYieldChange} />
-      </label>
-      <br />
-      <label>
-        Option Price:
-        <input type="number" value={optionPrice} onChange={handleOptionPriceChange} />
-      </label>
-      <br />
-      <label>
-        Option Type:
-        <select value={optionType} onChange={handleOptionTypeChange}>
-          <option value="call">CALL</option>
-          <option value="put">PUT</option>
-        </select>
-      </label>
-      <br />
-      <button type="submit">Calculate Greeks and IV</button>
-    </form>
+  <form onSubmit={handleSubmit}>
+    <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', margin: 'auto' }}>
+      <TextField
+        label="Underlying Price"
+        type="number"
+        value={underlyingPrice}
+        onChange={handleUnderlyingPriceChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <TextField
+        label="Strike Price"
+        type="number"
+        value={strikePrice}
+        onChange={handleStrikePriceChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <TextField
+        label="Expiration Date"
+        type="date"
+        value={expirationDate}
+        min={getCurrentDate()}
+        onChange={handleExpirationDateChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <Typography variant="body2" color="textSecondary" style={{ marginBottom: '16px' }}>
+        {timeToExpiration}
+      </Typography>
+      <TextField
+        label="Dividend Yield (in decimal form)"
+        type="number"
+        step="0.01"
+        value={dividendYield}
+        onChange={handleDividendYieldChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <TextField
+        label="Option Price"
+        type="number"
+        value={optionPrice}
+        onChange={handleOptionPriceChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <FormControl variant="outlined" margin="normal">
+        <InputLabel id="option-type-label">Option Type</InputLabel>
+        <Select
+          labelId="option-type-label"
+          id="option-type"
+          value={optionType}
+          onChange={handleOptionTypeChange}
+          label="Option Type"
+        >
+          <MenuItem value="call">CALL</MenuItem>
+          <MenuItem value="put">PUT</MenuItem>
+        </Select>
+      </FormControl>
+      <Button variant="contained" color="primary" type="submit" style={{ marginTop: '16px' }}>
+        Calculate Greeks and IV
+      </Button>
+    </div>
+  </form>
   );
 };
 
