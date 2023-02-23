@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import {TextField, FormControl, InputLabel, Select, MenuItem, InputAdornment, Button } from '@mui/material';
 import NumberInput from './NumberInput';
 import greeks from 'greeks';
-import {
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  InputAdornment,
-  Button
-} from '@mui/material';
+import bs from 'black-scholes';
+import iv from 'implied-volatility';
 
-const last_known_rate = 4.33;
+const last_known_rate = 4.5;  // hard coded fed rate, use online data or a scraping method if you'd like to
+
+const getCurrentDate = () => {
+  const today = new Date();
+  const month = today.getMonth() + 1 < 10 ? `0${today.getMonth() + 1}` : today.getMonth() + 1;
+  const day = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();
+  return `${today.getFullYear()}-${month}-${day}`;
+};
+
+function formatNumber(num, decimals=4) {
+  const formattedNum = num.toFixed(decimals);
+    return Number(formattedNum);
+}
 
 const OptionPricingForm = () => {
   let [riskFreeRate, setRiskFreeRate] = useState('');
@@ -61,13 +67,6 @@ const OptionPricingForm = () => {
     setImpliedVolatility(event.target.value);
   }
 
-  const getCurrentDate = () => {
-    const today = new Date();
-    const month = today.getMonth() + 1 < 10 ? `0${today.getMonth() + 1}` : today.getMonth() + 1;
-    const day = today.getDate() < 10 ? `0${today.getDate()}` : today.getDate();
-    return `${today.getFullYear()}-${month}-${day}`;
-  };
-
   useEffect(() => {
     const url = `https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=${process.env.ALPHA_APIKEY}`;
 
@@ -82,21 +81,69 @@ const OptionPricingForm = () => {
       });
   }, []);
 
+  const isFormValid = () => {
+    return optionPrice || impliedVolatility;
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    // definitions; if null, create later using getImpliedVolatility or blackScholes methods
+    let implied_volatility = impliedVolatility;
+    let option_price = optionPrice;
+
+    // form validation
+    if (!isFormValid()) {
+      alert('Please fill in either the Option Price or Implied Volatility field.');
+      return;
+    }
 
     // handling empty fields
     if(!dividendYield) { dividendYield = 0 }
     if(!riskFreeRate) { riskFreeRate = last_known_rate }
 
-    console.log(greeks.bs.blackScholes(underlyingPrice, strikePrice, timeToExpiration/365, impliedVolatility/100, riskFreeRate, optionType).toFixed(4))
-    console.log("DELTA:", greeks.getDelta(underlyingPrice, strikePrice, timeToExpiration/365, impliedVolatility/100, riskFreeRate/100, optionType).toFixed(4));
+    // if provided option_price but not IV%, calculate IV%
+    if (!implied_volatility && option_price) {
+      implied_volatility = formatNumber(iv.getImpliedVolatility(optionPrice, underlyingPrice, strikePrice, timeToExpiration/365, riskFreeRate/100, optionType)) * 100;
+      setImpliedVolatility(implied_volatility);
+    } else if(implied_volatility && !option_price) {
+      option_price = formatNumber(bs.blackScholes(underlyingPrice, strikePrice, timeToExpiration/365, impliedVolatility/100, riskFreeRate/100, optionType), 2);
+      setOptionPrice(option_price);
+    }
+
+    // syntactic sugar for the greeks calculations
+    const tte = timeToExpiration/365;
+    const ivp = impliedVolatility/100;
+    const rfp = riskFreeRate/100;
+
+    // greeks
+    const delta = formatNumber(greeks.getDelta(underlyingPrice, strikePrice, tte, ivp, rfp, optionType));
+    const theta = formatNumber(greeks.getTheta(underlyingPrice, strikePrice, tte, ivp, rfp, optionType));
+    const gamma = formatNumber(greeks.getGamma(underlyingPrice, strikePrice, tte, ivp, rfp));
+    const vega = formatNumber(greeks.getVega(underlyingPrice, strikePrice, tte, ivp, rfp));
+    const rho = formatNumber(greeks.getRho(underlyingPrice, strikePrice, tte, ivp, rfp, optionType));
+
+    // print everything for debugging purposes
+    console.log(`Underlying: ${underlyingPrice}$, Strike: ${strikePrice}$, Premium: ${optionPrice}$, DTE: ${timeToExpiration}, IV: ${impliedVolatility}%, Rate: ${riskFreeRate}%, Type: ${optionType.toUpperCase()}`)
+    console.log(`Delta: ${delta}, Theta: ${theta}, Vega: ${vega}, Gamma: ${gamma}, Rho: ${rho}`)
   }
 
   return (
   <form onSubmit={handleSubmit}>
-    <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', margin: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: "column", maxWidth: '250px', margin: 'auto' }}>
+    <FormControl variant="outlined" margin="normal">
+        <InputLabel id="option-type-label">Option Type</InputLabel>
+        <Select
+          labelId="option-type-label"
+          id="option-type"
+          value={optionType}
+          onChange={handleOptionTypeChange}
+          label="Option Type"
+        >
+          <MenuItem value="call">CALL</MenuItem>
+          <MenuItem value="put">PUT</MenuItem>
+        </Select>
+      </FormControl>
       <NumberInput
         label="Underlying Price"
         value={underlyingPrice}
@@ -114,14 +161,22 @@ const OptionPricingForm = () => {
         required
       />
       <NumberInput
-        label="Option Price"
+        label="Option Price (Premium)"
         type="number"
         value={optionPrice}
         onChange={handleOptionPriceChange}
         variant="outlined"
         margin="normal"
-        required
       />
+      <NumberInput
+        label="Implied Volatility %"
+        type="number"
+        id="impliedVolatility"
+        value={impliedVolatility}
+        onChange={handleImpliedVolatilityChange}
+        variant="outlined"
+        margin="normal"
+        />
       <TextField
         label="Expiration Date"
         type="date"
@@ -135,20 +190,10 @@ const OptionPricingForm = () => {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              ({timeToExpiration} Days To Expiry)
+              ({timeToExpiration} DTE)
             </InputAdornment>
           ),
         }}
-      />
-      <NumberInput
-        label="Implied Volatility %"
-        type="number"
-        id="impliedVolatility"
-        value={impliedVolatility}
-        onChange={handleImpliedVolatilityChange}
-        variant="outlined"
-        margin="normal"
-        required
       />
       <NumberInput
         label="Dividend Yield (decimal)"
@@ -168,19 +213,6 @@ const OptionPricingForm = () => {
         variant="outlined"
         margin="normal"
       />
-      <FormControl variant="outlined" margin="normal">
-        <InputLabel id="option-type-label">Option Type</InputLabel>
-        <Select
-          labelId="option-type-label"
-          id="option-type"
-          value={optionType}
-          onChange={handleOptionTypeChange}
-          label="Option Type"
-        >
-          <MenuItem value="call">CALL</MenuItem>
-          <MenuItem value="put">PUT</MenuItem>
-        </Select>
-      </FormControl>
       <Button variant="contained" color="primary" type="submit" style={{ marginTop: '16px' }}>
         Calculate Greeks and IV
       </Button>
