@@ -128,79 +128,88 @@ const OptionPricingForm = () => {
     console.log(`Delta: ${delta}, Theta: ${theta}, Vega: ${vega}, Gamma: ${gamma}, Rho: ${rho}`)
   }
 
+  const containerStyle = {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    marginLeft: '20px',
+    marginRight: '20px',
+    backgroundColor: 'white',
+  };
+
   return (
-  <form onSubmit={handleSubmit}>
-    <div style={{ display: 'flex', flexDirection: "column", maxWidth: '250px', margin: 'auto' }}>
-    <FormControl variant="outlined" margin="normal">
-        <InputLabel id="option-type-label">Option Type</InputLabel>
-        <Select
-          labelId="option-type-label"
-          id="option-type"
-          value={optionType}
-          onChange={handleOptionTypeChange}
-          label="Option Type"
-        >
-          <MenuItem value="call">CALL</MenuItem>
-          <MenuItem value="put">PUT</MenuItem>
-        </Select>
-      </FormControl>
-      <NumberInput
-        label="Underlying Price"
-        value={underlyingPrice}
-        onChange={handleUnderlyingPriceChange}
-        required
-      />
-      <NumberInput
-        label="Strike Price"
-        value={strikePrice}
-        onChange={handleStrikePriceChange}
-        required
-      />
-      <NumberInput
-        label="Option Price (Premium)"
-        value={optionPrice}
-        onChange={handleOptionPriceChange}
-      />
-      <NumberInput
-        label="Implied Volatility %"
-        id="impliedVolatility"
-        value={impliedVolatility}
-        onChange={handleImpliedVolatilityChange}
+  <div style={containerStyle} className="calc-container">
+    <form onSubmit={handleSubmit}>
+      <div className="form-section">
+      <FormControl variant="outlined" margin="normal">
+          <InputLabel id="option-type-label">Option Type</InputLabel>
+          <Select
+            labelId="option-type-label"
+            id="option-type"
+            value={optionType}
+            onChange={handleOptionTypeChange}
+            label="Option Type" >
+            <MenuItem value="call">CALL</MenuItem>
+            <MenuItem value="put">PUT</MenuItem>
+          </Select>
+        </FormControl>
+        <NumberInput
+          label="Underlying Price"
+          value={underlyingPrice}
+          onChange={handleUnderlyingPriceChange}
+          required
         />
-      <TextField
-        label="Expiration Date"
-        type="date"
-        value={expirationDate}
-        min={new Date(getCurrentDate())}
-        onChange={handleExpirationDateChange}
-        variant="outlined"
-        margin="normal"
-        required
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              ({timeToExpiration} DTE)
-            </InputAdornment>
-          ),
-        }}
-      />
-      <NumberInput
-        label="Dividend Yield (decimal)"
-        value={dividendYield}
-        onChange={handleDividendYieldChange}
-      />
-      <NumberInput
-        label="Interest %"
-        id="riskFreeRate"
-        value={riskFreeRate}
-        onChange={handleRiskFreeRateChange}
-      />
-      <Button variant="contained" color="primary" type="submit" style={{ marginTop: '16px' }}>
-        Calculate Greeks and IV
-      </Button>
-    </div>
-  </form>
+        <NumberInput
+          label="Strike Price"
+          value={strikePrice}
+          onChange={handleStrikePriceChange}
+          required
+        />
+        <NumberInput
+          label="Option Price (Premium)"
+          value={optionPrice}
+          onChange={handleOptionPriceChange}
+        />
+        <NumberInput
+          label="Implied Volatility %"
+          id="impliedVolatility"
+          value={impliedVolatility}
+          onChange={handleImpliedVolatilityChange}
+          />
+        <TextField
+          label="Expiration Date"
+          type="date"
+          value={expirationDate}
+          min={new Date(getCurrentDate())}
+          onChange={handleExpirationDateChange}
+          variant="outlined"
+          margin="normal"
+          required
+          InputLabelProps={{ shrink: true }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                ({timeToExpiration} DTE)
+              </InputAdornment>
+            ),
+          }}
+        />
+        <NumberInput
+          label="Dividend Yield (decimal)"
+          value={dividendYield}
+          onChange={handleDividendYieldChange}
+        />
+        <NumberInput
+          label="Interest %"
+          id="riskFreeRate"
+          value={riskFreeRate}
+          onChange={handleRiskFreeRateChange}
+        />
+        <Button variant="contained" color="primary" type="submit" style={{ marginTop: '16px' }}>
+          Calculate Greeks and IV
+        </Button>
+      </div>
+    </form>
+  </div>
   );
 };
 

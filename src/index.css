@@ -11,3 +11,14 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.form-section {
+  box-shadow: 0 6px 10px 0 rgba(67,153,235,.1);
+  border-radius: 0 0 10px 10px;
+  padding: 20px;
+  margin: auto;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
