@@ -14,6 +14,8 @@ const NumberInput = (props) => {
       {...props}
       type="number"
       onWheel={handleWheel}
+      variant="outlined"
+      margin="normal"
     />
   );
 };

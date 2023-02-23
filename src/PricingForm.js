@@ -148,34 +148,24 @@ const OptionPricingForm = () => {
         label="Underlying Price"
         value={underlyingPrice}
         onChange={handleUnderlyingPriceChange}
-        variant="outlined"
-        margin="normal"
         required
       />
       <NumberInput
         label="Strike Price"
         value={strikePrice}
         onChange={handleStrikePriceChange}
-        variant="outlined"
-        margin="normal"
         required
       />
       <NumberInput
         label="Option Price (Premium)"
-        type="number"
         value={optionPrice}
         onChange={handleOptionPriceChange}
-        variant="outlined"
-        margin="normal"
       />
       <NumberInput
         label="Implied Volatility %"
-        type="number"
         id="impliedVolatility"
         value={impliedVolatility}
         onChange={handleImpliedVolatilityChange}
-        variant="outlined"
-        margin="normal"
         />
       <TextField
         label="Expiration Date"
@@ -197,21 +187,14 @@ const OptionPricingForm = () => {
       />
       <NumberInput
         label="Dividend Yield (decimal)"
-        type="number"
-        step="0.01"
         value={dividendYield}
         onChange={handleDividendYieldChange}
-        variant="outlined"
-        margin="normal"
       />
       <NumberInput
         label="Interest %"
-        type="number"
         id="riskFreeRate"
         value={riskFreeRate}
         onChange={handleRiskFreeRateChange}
-        variant="outlined"
-        margin="normal"
       />
       <Button variant="contained" color="primary" type="submit" style={{ marginTop: '16px' }}>
         Calculate Greeks and IV
