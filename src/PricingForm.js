@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
+import NumberInput from './NumberInput';
+import greeks from 'greeks';
 import {
   TextField,
-  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Button,
+  InputAdornment,
+  Button
 } from '@mui/material';
 
+const last_known_rate = 4.33;
+
 const OptionPricingForm = () => {
-  const [riskFreeRate, setRiskFreeRate] = useState('');
-  const [underlyingPrice, setUnderlyingPrice] = useState('');
-  const [strikePrice, setStrikePrice] = useState('');
-  const [expirationDate, setExpirationDate] = useState('');
-  const [timeToExpiration, setTimeToExpiration] = useState('');
-  const [dividendYield, setDividendYield] = useState('');
-  const [optionPrice, setOptionPrice] = useState('');
-  const [optionType, setOptionType] = useState('call');
+  let [riskFreeRate, setRiskFreeRate] = useState('');
+  let [underlyingPrice, setUnderlyingPrice] = useState('');
+  let [strikePrice, setStrikePrice] = useState('');
+  let [expirationDate, setExpirationDate] = useState('');
+  let [timeToExpiration, setTimeToExpiration] = useState('');
+  let [dividendYield, setDividendYield] = useState('');
+  let [optionPrice, setOptionPrice] = useState('');
+  let [optionType, setOptionType] = useState('call');
+  let [impliedVolatility, setImpliedVolatility] = useState('');
 
   const handleUnderlyingPriceChange = (event) => {
     setUnderlyingPrice(event.target.value);
@@ -48,10 +53,13 @@ const OptionPricingForm = () => {
     setOptionType(event.target.value);
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Create function that calculates Greeks and IV here
-  };
+  const handleRiskFreeRateChange = (event) => {
+    setRiskFreeRate(event.target.value);
+  }
+
+  const handleImpliedVolatilityChange = (event) => {
+    setImpliedVolatility(event.target.value);
+  }
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -70,60 +78,42 @@ const OptionPricingForm = () => {
         setRiskFreeRate(rate);
       })
       .catch(error => {
-        setRiskFreeRate('');
+        setRiskFreeRate(last_known_rate);
       });
   }, []);
 
-  const handleRiskFreeRateChange = (event) => {
-    setRiskFreeRate(event.target.value);
-  }  
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    // handling empty fields
+    if(!dividendYield) { dividendYield = 0 }
+    if(!riskFreeRate) { riskFreeRate = last_known_rate }
+
+    console.log(greeks.bs.blackScholes(underlyingPrice, strikePrice, timeToExpiration/365, impliedVolatility/100, riskFreeRate, optionType).toFixed(4))
+    console.log("DELTA:", greeks.getDelta(underlyingPrice, strikePrice, timeToExpiration/365, impliedVolatility/100, riskFreeRate/100, optionType).toFixed(4));
+  }
 
   return (
   <form onSubmit={handleSubmit}>
     <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '500px', margin: 'auto' }}>
-      <TextField
+      <NumberInput
         label="Underlying Price"
-        type="number"
         value={underlyingPrice}
         onChange={handleUnderlyingPriceChange}
         variant="outlined"
         margin="normal"
         required
       />
-      <TextField
+      <NumberInput
         label="Strike Price"
-        type="number"
         value={strikePrice}
         onChange={handleStrikePriceChange}
         variant="outlined"
         margin="normal"
         required
       />
-      <TextField
-        label="Expiration Date"
-        type="date"
-        value={expirationDate}
-        min={getCurrentDate()}
-        onChange={handleExpirationDateChange}
-        variant="outlined"
-        margin="normal"
-        required
-        InputLabelProps={{ shrink: true }}
-      />
-      <Typography variant="body2" color="textSecondary" style={{ marginBottom: '16px' }}>
-        {timeToExpiration}
-      </Typography>
-      <TextField
-        label="Dividend Yield (decimal)"
-        type="number"
-        step="0.01"
-        value={dividendYield}
-        onChange={handleDividendYieldChange}
-        variant="outlined"
-        margin="normal"
-        required
-      />
-      <TextField
+      <NumberInput
         label="Option Price"
         type="number"
         value={optionPrice}
@@ -133,6 +123,43 @@ const OptionPricingForm = () => {
         required
       />
       <TextField
+        label="Expiration Date"
+        type="date"
+        value={expirationDate}
+        min={new Date(getCurrentDate())}
+        onChange={handleExpirationDateChange}
+        variant="outlined"
+        margin="normal"
+        required
+        InputLabelProps={{ shrink: true }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              ({timeToExpiration} Days To Expiry)
+            </InputAdornment>
+          ),
+        }}
+      />
+      <NumberInput
+        label="Implied Volatility %"
+        type="number"
+        id="impliedVolatility"
+        value={impliedVolatility}
+        onChange={handleImpliedVolatilityChange}
+        variant="outlined"
+        margin="normal"
+        required
+      />
+      <NumberInput
+        label="Dividend Yield (decimal)"
+        type="number"
+        step="0.01"
+        value={dividendYield}
+        onChange={handleDividendYieldChange}
+        variant="outlined"
+        margin="normal"
+      />
+      <NumberInput
         label="Interest %"
         type="number"
         id="riskFreeRate"
@@ -140,7 +167,6 @@ const OptionPricingForm = () => {
         onChange={handleRiskFreeRateChange}
         variant="outlined"
         margin="normal"
-        required
       />
       <FormControl variant="outlined" margin="normal">
         <InputLabel id="option-type-label">Option Type</InputLabel>
