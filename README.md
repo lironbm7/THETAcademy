@@ -15,6 +15,29 @@ THETAcademy is a JavaScript React Web Application which uses the Black-Scholes M
 Online Option Calculators lack in information for beginners and Students who are acquiring the knowledge of how the Option market works, this is where THETAcademy comes in to place and provides a solution - a friendly platform that explains what stands behind every number, helps understand the risks and how Greeks can affect the outcome of a trade.
 
 
+## Premium, Implied Volatility and Greeks
+
+#### Debugging data via console
+```javascript
+function handleSubmit(event) {
+    event.preventDefault();
+    // ...
+    console.log(`Underlying: ${underlyingPrice}$, Strike: ${strikePrice}$, Premium: ${optionPrice}$, DTE: ${timeToExpiration}, IV: ${impliedVolatility}%, Rate: ${riskFreeRate}%, Type: ${optionType.toUpperCase()}`)
+    console.log(`Delta: ${delta}, Theta: ${theta}, Vega: ${vega}, Gamma: ${gamma}, Rho: ${rho}`)
+  }
+```
+
+
+## Chart Data ETL Process
+
+**Extraction** - Various `AlphaVantage API` endpoints to provide data
+
+**Transformation** - I chose to use `JQ` and Regular Expressions to filter out unwanted data
+
+**Loading** - `PapaParse` to read the data from a .csv and `Recharts` to visualize
+
+
+
 ## Contributing
 
 If you would like to contribute to this project, please open an issue or pull request on GitHub.
