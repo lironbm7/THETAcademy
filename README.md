@@ -17,7 +17,7 @@ Online Option Calculators lack in information for beginners and Students who are
 
 ## Premium, Implied Volatility and Greeks
 
-#### Debugging data via console
+#### ATM, calculations are only processed in the back-end and are not visible to the client, debug via console @ `handleSubmit`:
 ```javascript
 function handleSubmit(event) {
     event.preventDefault();
@@ -29,6 +29,8 @@ function handleSubmit(event) {
 
 
 ## Chart Data ETL Process
+
+#### `Chart.js` component includes the Chart creation methodology which is based on an ETL process:
 
 **Extraction** - Various `AlphaVantage API` endpoints to provide data
 
