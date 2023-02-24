@@ -15,6 +15,7 @@
     "dotenv": "^16.0.3",
     "greeks": "^1.0.0",
     "implied-volatility": "^1.0.0",
+    "papaparse": "^5.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
