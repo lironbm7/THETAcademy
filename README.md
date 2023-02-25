@@ -1,7 +1,7 @@
 <h2 align="center"> Project and Documentation are currently a Work In Progress. </h2>
 <p align="center"><img src="https://i.imgur.com/keFsA2M.png" /></p>
 
-# THETAcademy - Option Pricing & Greeks
+# THETA Academy - Option Pricing & Greeks
 
 Calculations of Greeks and Option Pricing based on the Black-Scholes Mathematical Model. 
 
